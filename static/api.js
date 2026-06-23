@@ -1,5 +1,5 @@
 // 从全局变量中获取 API 地址，并添加 /api 路径
-const API_BASE_URL = 'https://my-page-api.yvyan.top/api';
+const API_BASE_URL = 'https://mypage-35n.pages.dev/api';
 let token = null;
 
 // Token 管理
