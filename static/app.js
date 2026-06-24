@@ -179,11 +179,12 @@ function openLinkModal(linkId = null) {
     delete form.dataset.linkId;
     delete form.dataset.orderNum;
     
-    updateGroupSelect();
-    
-    if (linkId) {
-        loadLinkData(linkId);
-    }
+    // 【异步修复】先确保异步把下拉选项塞满，再执行 loadLinkData 选中它，防止对号入座失败
+    updateGroupSelect().then(() => {
+        if (linkId) {
+            loadLinkData(linkId);
+        }
+    });
     
     // URL 输入框的失焦事件监听
     const urlInput = document.getElementById('linkUrl');
@@ -222,7 +223,7 @@ async function handleLinkSubmit(event) {
     const links = await fetchLinks();
     
     if (linkId) {
-        // 【核心修复】编辑现有链接
+        // 编辑现有链接
         const currentLink = links.find(l => l.id === parseInt(linkId));
         
         if (currentLink && currentLink.group_id !== groupId) {
@@ -617,6 +618,8 @@ async function loadLinkData(linkId) {
             document.getElementById('linkUrl').value = link.url;
             document.getElementById('linkLogo').value = link.logo || '';
             document.getElementById('linkDescription').value = link.description || '';
+            
+            // 【核心锁定】确保这里的下拉框 group_id 能够完美高亮回显原分组
             document.getElementById('linkGroup').value = link.group_id;
             
             form.dataset.linkId = linkId;
