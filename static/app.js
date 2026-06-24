@@ -171,7 +171,11 @@ function openLinkModal(linkId = null) {
     
     const modal = document.getElementById('linkModal');
     const form = document.getElementById('linkForm');
+    
+    // 【核心修复】重置文本框的同时，彻底清除表单 DOM 节点上残留的旧 ID 和排序序号缓存
     form.reset();
+    delete form.dataset.linkId;
+    delete form.dataset.orderNum;
     
     updateGroupSelect();
     
@@ -344,7 +348,7 @@ async function getIconUrl({ url }) {
             // 使用 Favicon Kit（支持 CORS）
             `https://api.faviconkit.com/${domain}/144`,
             // 最后尝试网站自身的图标
-            `https://${domain}/favicon.ico`
+            `https://' + domain + '/favicon.ico`
         ];
         
         // 依次尝试每个图标源
@@ -778,7 +782,7 @@ async function autoFillLinkInfo() {
         showToast('获取网页信息成功');
     } catch (error) {
         toast.remove();
-        showToast('获取网页信息失败: ' + error.message, 'error');
+        showToast('获取网页 information 失败: ' + error.message, 'error');
     }
 }
 
@@ -994,6 +998,13 @@ function getFallbackIcon(url) {
 // 加载图标
 async function loadIcons() {
     const icons = document.querySelectorAll('.link-icon img');
+    const defaultIcon = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <rect width="24" height="24" rx="12" fill="#4299e1" opacity="0.1"/>
+            <path fill="#4299e1" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+        </svg>
+    `.trim());
+
     for (const img of icons) {
         if (img.dataset.autoIcon === 'true') {
             const url = img.dataset.url;
