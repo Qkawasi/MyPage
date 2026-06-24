@@ -162,7 +162,7 @@ async function handleLogin(event) {
     }
 }
 
-// 链接管理相关
+// 链接管理相关 - 彻底重构生命周期
 function openLinkModal(linkId = null) {
     if (!isEditMode) {
         showToast('请先登录管理员账号');
@@ -172,8 +172,10 @@ function openLinkModal(linkId = null) {
     const modal = document.getElementById('linkModal');
     const form = document.getElementById('linkForm');
     
-    // 【核心修复】重置文本框的同时，彻底清除表单 DOM 节点上残留的旧 ID 和排序序号缓存
+    // 【双重保险 1】打开时绝对清空所有旧状态
     form.reset();
+    form.removeAttribute('data-link-id');
+    form.removeAttribute('data-order-num');
     delete form.dataset.linkId;
     delete form.dataset.orderNum;
     
@@ -183,38 +185,54 @@ function openLinkModal(linkId = null) {
         loadLinkData(linkId);
     }
     
-    // 添加 URL 输入框的失焦事件监听
+    // URL 输入框的失焦事件监听
     const urlInput = document.getElementById('linkUrl');
-    urlInput.removeEventListener('blur', autoFillLinkInfo); // 先移除旧的监听器
+    urlInput.removeEventListener('blur', autoFillLinkInfo); 
     urlInput.addEventListener('blur', autoFillLinkInfo);
     
     modal.style.display = 'block';
 }
 
 function closeLinkModal() {
-    document.getElementById('linkModal').style.display = 'none';
+    const modal = document.getElementById('linkModal');
+    const form = document.getElementById('linkForm');
+    
+    modal.style.display = 'none';
+    
+    // 【双重保险 2】关闭窗口时立即抹除所有状态，绝不留到下一次
+    form.reset();
+    form.removeAttribute('data-link-id');
+    form.removeAttribute('data-order-num');
+    delete form.dataset.linkId;
+    delete form.dataset.orderNum;
 }
 
 async function handleLinkSubmit(event) {
     event.preventDefault();
-    const linkId = event.target.dataset.linkId;
+    const form = event.target;
+    // 严格获取当前 ID 状态
+    const linkId = form.dataset.linkId || form.getAttribute('data-link-id');
     const groupId = parseInt(document.getElementById('linkGroup').value);
     
+    if (!groupId) {
+        showToast('请选择分组', 'error');
+        return;
+    }
+
     let orderNum;
+    
     if (linkId) {
         // 编辑现有链接
         const links = await fetchLinks();
         const currentLink = links.find(l => l.id === parseInt(linkId));
         
         if (currentLink && currentLink.group_id !== groupId) {
-            // 如果分组发生变化
+            // 分组发生改变，处理位移序号
             try {
-                // 处理原分组中的链接序号
                 const oldGroupLinks = links
                     .filter(l => l.group_id === currentLink.group_id)
                     .sort((a, b) => a.order_num - b.order_num);
                 
-                // 更新原分组中序号大于当前链接的所有链接
                 for (let i = 0; i < oldGroupLinks.length; i++) {
                     const link = oldGroupLinks[i];
                     if (link.order_num > currentLink.order_num) {
@@ -225,30 +243,27 @@ async function handleLinkSubmit(event) {
                     }
                 }
                 
-                // 获取新分组的最大序号
                 const groupLinks = links.filter(l => l.group_id === groupId);
-                groupLinks.sort((a, b) => a.order_num - b.order_num);
                 orderNum = groupLinks.length + 1;
             } catch (error) {
                 showToast('更新序号失败: ' + error.message, 'error');
                 return;
             }
         } else {
-            // 如果分组没变，保持原序号
-            orderNum = parseInt(event.target.dataset.orderNum) || 0;
+            // 分组没变，保持原序号
+            orderNum = parseInt(form.dataset.orderNum) || (currentLink ? currentLink.order_num : 0);
         }
     } else {
-        // 添加新链接
+        // 纯粹的【添加新链接】逻辑
         try {
             const links = await fetchLinks();
             const groupLinks = links.filter(l => l.group_id === groupId);
-            // 找到当前分组中最大的序号
             const maxOrderNum = groupLinks.reduce((max, link) => 
                 Math.max(max, link.order_num || 0), 0);
             orderNum = maxOrderNum + 1;
         } catch (error) {
             console.error('获取链接序号失败:', error);
-            orderNum = 1; // 如果出错，默认使用1
+            orderNum = 1; 
         }
     }
     
@@ -264,12 +279,14 @@ async function handleLinkSubmit(event) {
     try {
         if (linkId) {
             await updateLink(parseInt(linkId), formData);
+            showToast('更新成功');
         } else {
             await createLink(formData);
+            showToast('添加成功');
         }
         
+        // 【双重保险 3】提交完毕彻底断绝联系
         closeLinkModal();
-        showToast('保存成功');
         await loadNavigation();
     } catch (error) {
         showToast('保存失败: ' + error.message, 'error');
@@ -286,7 +303,10 @@ function openGroupModal(groupId = null) {
     const modal = document.getElementById('groupModal');
     const form = document.getElementById('groupForm');
     form.reset();
-    form.dataset.groupId = groupId || '';
+    form.removeAttribute('data-group-id');
+    form.removeAttribute('data-order-num');
+    delete form.dataset.groupId;
+    delete form.dataset.orderNum;
     
     if (groupId) {
         loadGroupData(groupId);
@@ -296,31 +316,39 @@ function openGroupModal(groupId = null) {
 }
 
 function closeGroupModal() {
-    document.getElementById('groupModal').style.display = 'none';
+    const modal = document.getElementById('groupModal');
+    const form = document.getElementById('groupForm');
+    modal.style.display = 'none';
+    form.reset();
+    form.removeAttribute('data-group-id');
+    form.removeAttribute('data-order-num');
+    delete form.dataset.groupId;
+    delete form.dataset.orderNum;
 }
 
 async function handleGroupSubmit(event) {
     event.preventDefault();
-    const groupId = event.target.dataset.groupId;
+    const form = event.target;
+    const groupId = form.dataset.groupId || form.getAttribute('data-group-id');
     
-    // 获取当前最大序号
     const groups = await fetchGroups();
     const maxOrderNum = Math.max(0, ...groups.map(g => g.order_num || 0));
     
     const formData = {
         name: document.getElementById('groupName').value,
         is_private: document.getElementById('groupPrivate').checked,
-        order_num: groupId ? parseInt(event.target.dataset.orderNum) || 0 : maxOrderNum + 1
+        order_num: groupId ? parseInt(form.dataset.orderNum) || 0 : maxOrderNum + 1
     };
     
     try {
         if (groupId) {
-            await updateGroup(groupId, formData);
+            await updateGroup(parseInt(groupId), formData);
+            showToast('分组更新成功');
         } else {
             await createGroup(formData);
+            showToast('分组创建成功');
         }
         closeGroupModal();
-        showToast('分组保存成功');
         await loadNavigation();
     } catch (error) {
         showToast('保存失败: ' + error.message, 'error');
@@ -334,35 +362,26 @@ const iconCache = new Map();
 async function getIconUrl({ url }) {
     try {
         const domain = new URL(url).hostname;
-        // 先检查本地缓存
         const cacheKey = `icon_cache_${domain}`;
         const cachedUrl = localStorage.getItem(cacheKey);
         if (cachedUrl) {
             return cachedUrl;
         }
         
-        // 尝试不同的图标服务，按可靠性排序
         const iconUrls = [
-            // 使用 Icon Horse 服务（支持 CORS）
             `https://icon.horse/icon/${domain}`,
-            // 使用 Favicon Kit（支持 CORS）
             `https://api.faviconkit.com/${domain}/144`,
-            // 最后尝试网站自身的图标
-            `https://' + domain + '/favicon.ico`
+            `https://${domain}/favicon.ico`
         ];
         
-        // 依次尝试每个图标源
         for (const iconUrl of iconUrls) {
             try {
-                // 直接使用 img 标签测试图标是否可用
                 const img = new Image();
                 await new Promise((resolve, reject) => {
                     img.onload = resolve;
                     img.onerror = reject;
                     img.src = iconUrl;
                 });
-                
-                // 如果图片加载成功，缓存并返回URL
                 localStorage.setItem(cacheKey, iconUrl);
                 return iconUrl;
             }
@@ -370,8 +389,6 @@ async function getIconUrl({ url }) {
                 continue;
             }
         }
-        
-        // 如果所有尝试都失败了，返回 null 使用备选图标
         return null;
     } catch (error) {
         return null;
@@ -383,7 +400,6 @@ async function loadNavigation() {
     const navigationElement = document.getElementById('navigation');
     const groupNavElement = document.getElementById('groupNav');
     
-    // 设置加载状态
     const loadingHtml = `
         <div class="nav-loading">
             <div class="nav-loading-dot"></div>
@@ -410,7 +426,6 @@ async function loadNavigation() {
         let html = '';
         let navHtml = '';
         
-        // 如果是编辑模式，添加管理按钮
         if (isEditMode) {
             html += `
                 <div class="admin-controls">
@@ -424,16 +439,22 @@ async function loadNavigation() {
             `;
         }
         
-        // 如果没有数据，显示相应提示
         if (groups.length === 0) {
             navigationElement.innerHTML = html + '暂无内容';
             groupNavElement.innerHTML = '暂无分组';
             return;
         }
         
+        // 对分组按照 order_num 进行升序排序
+        groups.sort((a, b) => (a.order_num || 0) - (b.order_num || 0));
+        
         for (const group of groups) {
             if (!group.is_private || isAdmin) {
-                const groupLinks = links.filter(link => link.group_id === group.id);
+                // 对组内链接也按照 order_num 进行升序排序
+                const groupLinks = links
+                    .filter(link => link.group_id === group.id)
+                    .sort((a, b) => (a.order_num || 0) - (b.order_num || 0));
+                    
                 const groupId = `group-${group.id}`;
                 
                 html += `
@@ -462,17 +483,13 @@ async function loadNavigation() {
             }
         }
         
-        // 更新内容
         navigationElement.innerHTML = html;
         groupNavElement.innerHTML = navHtml;
         
-        // 加载图标
         await loadIcons();
-        
-        // 监听滚动事件来更新活动项
+        window.removeEventListener('scroll', updateActiveNavItem);
         window.addEventListener('scroll', updateActiveNavItem);
     } catch (error) {
-        // 显示错误信息
         navigationElement.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
         groupNavElement.innerHTML = `<div class="error">加载失败</div>`;
     }
@@ -493,45 +510,16 @@ function updateActiveNavItem() {
     
     groups.forEach((group, index) => {
         const rect = group.getBoundingClientRect();
-        if (rect.top <= 100 && rect.bottom >= 100) {
+        if (rect.top <= 100 && rect.bottom >= 100 && navItems[index]) {
             highlightNavItem(navItems[index]);
         }
     });
 }
 
-// 创建链接卡片
-function createLinkCard(link) {
-    const domain = new URL(link.url).hostname;
-    const defaultIcon = `https://icon.horse/icon/${domain}`;
-
-    return `
-        <div class="link-card">
-            <a href="${link.url}" target="_blank" class="link-content">
-                <img class="link-icon" src="${link.logo || defaultIcon}" 
-                     alt="" onerror="this.src='https://icon.horse/icon/example.com'">
-                <div class="link-card-content">
-                    <div class="link-title">${link.name}</div>
-                    ${link.description ? `<div class="link-description">${link.description}</div>` : ''}
-                </div>
-            </a>
-            <div class="link-url-tooltip">${link.url}</div>
-            ${isEditMode ? `
-                <div class="link-actions">
-                    <button onclick="openLinkModal(${link.id})"><i class="fas fa-edit"></i> 编辑</button>
-                    <button onclick="deleteLinkConfirm(${link.id})"><i class="fas fa-trash"></i> 删除</button>
-                    <div class="order-actions">
-                        <button onclick="moveLinkUp(${link.id}, ${link.group_id})"><i class="fas fa-arrow-up"></i></button>
-                        <button onclick="moveLinkDown(${link.id}, ${link.group_id})"><i class="fas fa-arrow-down"></i></button>
-                    </div>
-                </div>
-            ` : ''}
-        </div>
-    `;
-}
-
 // 提示消息
 function showToast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     
@@ -551,7 +539,6 @@ function showToast(message, type = 'success') {
     toast.innerHTML = `${icon}${message}`;
     container.appendChild(toast);
     
-    // 3秒后自动移除
     if (type !== 'loading') {
         setTimeout(() => {
             toast.remove();
@@ -565,6 +552,7 @@ function showToast(message, type = 'success') {
 function showConfirm(title, message) {
     return new Promise((resolve) => {
         const dialog = document.getElementById('confirmDialog');
+        if (!dialog) { resolve(true); return; }
         dialog.querySelector('.confirm-title').textContent = title;
         dialog.querySelector('.confirm-message').textContent = message;
         dialog.style.display = 'block';
@@ -579,13 +567,16 @@ function showConfirm(title, message) {
     });
 }
 
-// 关闭模态框的其他方式
-window.onclick = function(event) {
-    const modal = document.getElementById('adminModal');
-    if (event.target === modal) {
-        closeAdminModal();
-    }
-}
+// 点击外部关闭模态框
+window.addEventListener('click', function(event) {
+    const adminModal = document.getElementById('adminModal');
+    const linkModal = document.getElementById('linkModal');
+    const groupModal = document.getElementById('groupModal');
+    
+    if (event.target === adminModal) closeAdminModal();
+    if (event.target === linkModal) closeLinkModal();
+    if (event.target === groupModal) closeGroupModal();
+});
 
 // 删除分组确认
 async function deleteGroupConfirm(groupId) {
@@ -598,11 +589,11 @@ async function deleteGroupConfirm(groupId) {
         const toast = showToast('正在删除分组...', 'loading');
         try {
             await deleteGroup(groupId);
-            toast.remove();
+            if (toast) toast.remove();
             showToast('分组删除成功');
             await loadNavigation();
         } catch (error) {
-            toast.remove();
+            if (toast) toast.remove();
             showToast('删除失败: ' + error.message, 'error');
         }
     }
@@ -614,10 +605,11 @@ async function loadGroupData(groupId) {
         const groups = await fetchGroups();
         const group = groups.find(g => g.id === parseInt(groupId));
         if (group) {
+            const form = document.getElementById('groupForm');
             document.getElementById('groupName').value = group.name;
             document.getElementById('groupPrivate').checked = group.is_private;
-            const form = document.getElementById('groupForm');
             form.dataset.groupId = groupId;
+            form.setAttribute('data-group-id', groupId);
             form.dataset.orderNum = group.order_num;
         }
     } catch (error) {
@@ -629,15 +621,18 @@ async function loadGroupData(groupId) {
 async function loadLinkData(linkId) {
     try {
         const links = await fetchLinks();
-        const link = links.find(l => l.id === linkId);
+        const link = links.find(l => l.id === parseInt(linkId));
         if (link) {
+            const form = document.getElementById('linkForm');
             document.getElementById('linkName').value = link.name;
             document.getElementById('linkUrl').value = link.url;
             document.getElementById('linkLogo').value = link.logo || '';
             document.getElementById('linkDescription').value = link.description || '';
             document.getElementById('linkGroup').value = link.group_id;
-            document.getElementById('linkForm').dataset.linkId = linkId;
-            document.getElementById('linkForm').dataset.orderNum = link.order_num;
+            
+            form.dataset.linkId = linkId;
+            form.setAttribute('data-link-id', linkId);
+            form.dataset.orderNum = link.order_num;
         }
     } catch (error) {
         showToast('加载链接数据失败: ' + error.message, 'error');
@@ -649,6 +644,7 @@ async function updateGroupSelect() {
     const select = document.getElementById('linkGroup');
     try {
         const groups = await fetchGroups();
+        groups.sort((a, b) => (a.order_num || 0) - (b.order_num || 0));
         select.innerHTML = '<option value="">选择分组...</option>' +
             groups.map(group => 
                 `<option value="${group.id}">${group.name}</option>`
@@ -669,11 +665,11 @@ async function deleteLinkConfirm(linkId) {
         const toast = showToast('正在删除链接...', 'loading');
         try {
             await deleteLink(linkId);
-            toast.remove();
+            if (toast) toast.remove();
             showToast('链接删除成功');
             await loadNavigation();
         } catch (error) {
-            toast.remove();
+            if (toast) toast.remove();
             showToast('删除失败: ' + error.message, 'error');
         }
     }
@@ -682,10 +678,9 @@ async function deleteLinkConfirm(linkId) {
 // 链接排序功能
 async function moveLinkUp(linkId, groupId) {
     let toast;
-    const links = (await fetchLinks()).filter(l => l.group_id === groupId);
+    const links = (await fetchLinks()).filter(l => l.group_id === groupId).sort((a,b) => a.order_num - b.order_num);
     const currentIndex = links.findIndex(l => l.id === linkId);
     if (currentIndex === 0) {
-        if (toast) toast.remove();
         showToast('已经是第一个链接了', 'error');
         return;
     }
@@ -694,32 +689,24 @@ async function moveLinkUp(linkId, groupId) {
     const currentLink = links[currentIndex];
     const prevLink = links[currentIndex - 1];
     try {
-        await updateLink(currentLink.id, {
-            ...currentLink,
-            order_num: prevLink.order_num
-        });
-        await updateLink(prevLink.id, {
-            ...prevLink,
-            order_num: currentLink.order_num
-        });
+        const currentOrder = currentLink.order_num;
+        await updateLink(currentLink.id, { ...currentLink, order_num: prevLink.order_num });
+        await updateLink(prevLink.id, { ...prevLink, order_num: currentOrder });
         
-        toast.remove();
+        if (toast) toast.remove();
         showToast('链接顺序已更新');
         await loadNavigation();
     } catch (error) {
-        toast.remove();
-        showToast('更新顺序失败: ' + error.message, 'error');
-    } finally {
         if (toast) toast.remove();
+        showToast('更新顺序失败: ' + error.message, 'error');
     }
 }
 
 async function moveLinkDown(linkId, groupId) {
     let toast;
-    const links = (await fetchLinks()).filter(l => l.group_id === groupId);
+    const links = (await fetchLinks()).filter(l => l.group_id === groupId).sort((a,b) => a.order_num - b.order_num);
     const currentIndex = links.findIndex(l => l.id === linkId);
     if (currentIndex === links.length - 1) {
-        if (toast) toast.remove();
         showToast('已经是最后一个链接了', 'error');
         return;
     }
@@ -728,23 +715,16 @@ async function moveLinkDown(linkId, groupId) {
     const currentLink = links[currentIndex];
     const nextLink = links[currentIndex + 1];
     try {
-        await updateLink(currentLink.id, {
-            ...currentLink,
-            order_num: nextLink.order_num
-        });
-        await updateLink(nextLink.id, {
-            ...nextLink,
-            order_num: currentLink.order_num
-        });
+        const currentOrder = currentLink.order_num;
+        await updateLink(currentLink.id, { ...currentLink, order_num: nextLink.order_num });
+        await updateLink(nextLink.id, { ...nextLink, order_num: currentOrder });
         
-        toast.remove();
+        if (toast) toast.remove();
         showToast('链接顺序已更新');
         await loadNavigation();
     } catch (error) {
-        toast.remove();
-        showToast('更新顺序失败: ' + error.message, 'error');
-    } finally {
         if (toast) toast.remove();
+        showToast('更新顺序失败: ' + error.message, 'error');
     }
 }
 
@@ -760,39 +740,27 @@ async function autoFillLinkInfo() {
 
     const toast = showToast('正在获取网页信息...', 'loading');
     try {
-        // 获取网站图标
-        const domain = new URL(url).hostname;
         const iconUrl = await getIconUrl({ url });
-        
-        // 获取网页信息
         const info = await fetchWebInfo(url);
         
-        // 只在字段为空时填充
-        if (!nameInput.value) {
-            nameInput.value = info.title || '';
-        }
-        if (!logoInput.value) {
-            logoInput.value = iconUrl || '';
-        }
-        if (!descriptionInput.value) {
-            descriptionInput.value = info.description || '';
-        }
+        if (!nameInput.value) nameInput.value = info.title || '';
+        if (!logoInput.value) logoInput.value = iconUrl || '';
+        if (!descriptionInput.value) descriptionInput.value = info.description || '';
         
-        toast.remove();
+        if (toast) toast.remove();
         showToast('获取网页信息成功');
     } catch (error) {
-        toast.remove();
-        showToast('获取网页 information 失败: ' + error.message, 'error');
+        if (toast) toast.remove();
+        showToast('获取网页信息失败: ' + error.message, 'error');
     }
 }
 
 // 分组排序功能
 async function moveGroupUp(groupId) {
     let toast;
-    const groups = await fetchGroups();
+    const groups = (await fetchGroups()).sort((a,b) => a.order_num - b.order_num);
     const currentIndex = groups.findIndex(g => g.id === groupId);
     if (currentIndex === 0) {
-        if (toast) toast.remove();
         showToast('已经是第一个分组了', 'error');
         return;
     }
@@ -801,32 +769,24 @@ async function moveGroupUp(groupId) {
     const currentGroup = groups[currentIndex];
     const prevGroup = groups[currentIndex - 1];
     try {
-        await updateGroup(currentGroup.id, {
-            ...currentGroup,
-            order_num: prevGroup.order_num
-        });
-        await updateGroup(prevGroup.id, {
-            ...prevGroup,
-            order_num: currentGroup.order_num
-        });
+        const currentOrder = currentGroup.order_num;
+        await updateGroup(currentGroup.id, { ...currentGroup, order_num: prevGroup.order_num });
+        await updateGroup(prevGroup.id, { ...prevGroup, order_num: currentOrder });
         
-        toast.remove();
+        if (toast) toast.remove();
         showToast('分组顺序已更新');
         await loadNavigation();
     } catch (error) {
-        toast.remove();
-        showToast('更新顺序失败: ' + error.message, 'error');
-    } finally {
         if (toast) toast.remove();
+        showToast('更新顺序失败: ' + error.message, 'error');
     }
 }
 
 async function moveGroupDown(groupId) {
     let toast;
-    const groups = await fetchGroups();
+    const groups = (await fetchGroups()).sort((a,b) => a.order_num - b.order_num);
     const currentIndex = groups.findIndex(g => g.id === groupId);
     if (currentIndex === groups.length - 1) {
-        if (toast) toast.remove();
         showToast('已经是最后一个分组了', 'error');
         return;
     }
@@ -835,23 +795,16 @@ async function moveGroupDown(groupId) {
     const currentGroup = groups[currentIndex];
     const nextGroup = groups[currentIndex + 1];
     try {
-        await updateGroup(currentGroup.id, {
-            ...currentGroup,
-            order_num: nextGroup.order_num
-        });
-        await updateGroup(nextGroup.id, {
-            ...nextGroup,
-            order_num: currentGroup.order_num
-        });
+        const currentOrder = currentGroup.order_num;
+        await updateGroup(currentGroup.id, { ...currentGroup, order_num: nextGroup.order_num });
+        await updateGroup(nextGroup.id, { ...nextGroup, order_num: currentOrder });
         
-        toast.remove();
+        if (toast) toast.remove();
         showToast('分组顺序已更新');
         await loadNavigation();
     } catch (error) {
-        toast.remove();
-        showToast('更新顺序失败: ' + error.message, 'error');
-    } finally {
         if (toast) toast.remove();
+        showToast('更新顺序失败: ' + error.message, 'error');
     }
 }
 
@@ -920,7 +873,7 @@ function getLinkCard(link) {
                 </div>
             </div>
             ${isEditMode ? `
-                <div class="link-actions" onclick="event.preventDefault();">
+                <div class="link-actions" onclick="event.preventDefault(); event.stopPropagation();">
                     <div class="order-actions">
                         <button onclick="moveLinkUp(${link.id}, ${link.group_id})" title="上移">
                             <i class="fas fa-arrow-up"></i>
@@ -939,60 +892,6 @@ function getLinkCard(link) {
             ` : ''}
         </a>
     `;
-}
-
-// 根据URL获取合适的后备图标
-function getFallbackIcon(url) {
-    const domain = new URL(url).hostname.toLowerCase();
-    
-    // 常见网站的图标映射
-    const iconMap = {
-        'github.com': 'github',
-        'youtube.com': 'youtube',
-        'twitter.com': 'twitter',
-        'facebook.com': 'facebook',
-        'instagram.com': 'instagram',
-        'linkedin.com': 'linkedin',
-        'medium.com': 'medium',
-        'reddit.com': 'reddit',
-        'stackoverflow.com': 'stack-overflow',
-        'amazon.com': 'amazon',
-        'google.com': 'google',
-        'microsoft.com': 'microsoft',
-        'apple.com': 'apple',
-        'netflix.com': 'netflix',
-        'spotify.com': 'spotify',
-        'twitch.tv': 'twitch',
-        'wikipedia.org': 'wikipedia-w',
-        'wordpress.com': 'wordpress',
-        'blogger.com': 'blogger',
-        'pinterest.com': 'pinterest'
-    };
-
-    // 检查是否是已知网站
-    for (const [site, icon] of Object.entries(iconMap)) {
-        if (domain.includes(site)) {
-            return icon;
-        }
-    }
-
-    // 根据URL类型返回通用图标
-    if (domain.includes('docs.') || domain.endsWith('.doc')) return 'file-word';
-    if (domain.includes('sheets.') || domain.endsWith('.xls')) return 'file-excel';
-    if (domain.includes('slides.') || domain.endsWith('.ppt')) return 'file-powerpoint';
-    if (domain.includes('drive.') || domain.includes('cloud')) return 'cloud';
-    if (domain.includes('mail.') || domain.includes('outlook')) return 'envelope';
-    if (domain.includes('chat.') || domain.includes('meet.')) return 'comments';
-    if (domain.includes('map')) return 'map-marker-alt';
-    if (domain.includes('video') || domain.includes('tv')) return 'video';
-    if (domain.includes('music') || domain.includes('audio')) return 'music';
-    if (domain.includes('shop') || domain.includes('store')) return 'shopping-cart';
-    if (domain.includes('game')) return 'gamepad';
-    if (domain.includes('news')) return 'newspaper';
-    if (domain.includes('blog')) return 'blog';
-    
-    // 默认图标
-    return 'link';
 }
 
 // 加载图标
