@@ -1,4 +1,6 @@
-/* 基础样式 */
+/* ==========================================
+   1. 基础样式与全局背景
+   ========================================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -8,8 +10,10 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background: linear-gradient(135deg, #f6f9fc 0%, #edf2f7 100%);
+    color: #2d3748;
+    /* 引入高清壁纸并完全固定 */
+    background: url('https://i.postimg.cc/fb92CkC2/0ehu8p0ehu8p0eh(1).png') no-repeat center center fixed;
+    background-size: cover;
     min-height: 100vh;
 }
 
@@ -23,17 +27,20 @@ body {
     animation: fadeIn 0.5s ease;
 }
 
-/* 侧边导航样式 */
+/* ==========================================
+   2. 侧边导航样式（精致毛玻璃）
+   ========================================== */
 .nav-sidebar {
     position: sticky;
     top: 20px;
     height: fit-content;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 10px;
     padding: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .nav-title {
@@ -42,7 +49,7 @@ body {
     color: #2d3748;
     margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid rgba(226, 232, 240, 0.5);
 }
 
 .nav-list {
@@ -62,46 +69,50 @@ body {
 }
 
 .nav-item:hover {
-    background: #edf2f7;
+    background: rgba(237, 242, 247, 0.6);
     color: #2d3748;
 }
 
 .nav-item.active {
-    background: #e6f0fb;
-    color: #4299e1;
+    background: rgba(66, 153, 225, 0.15);
+    color: #3182ce;
     font-weight: 500;
 }
 
-/* 头部样式 */
+/* ==========================================
+   3. 头部与搜索栏
+   ========================================== */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    background: white;
     padding: 15px 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    backdrop-filter: blur(8px);
-    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-/* 搜索栏样式 */
 .search-bar {
     display: flex;
     width: 600px;
     max-width: 100%;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .search-bar:focus-within {
     transform: scale(1.01);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .search-icon {
@@ -123,25 +134,25 @@ body {
     padding: 10px;
     padding-left: 35px;
     font-size: 16px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(221, 221, 221, 0.5);
     border-right: none;
     border-radius: 4px 0 0 4px;
+    background: transparent;
     transition: all 0.3s ease;
 }
 
 .search-bar input:focus {
     outline: none;
     border-color: #4299e1;
-    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
 }
 
 .search-bar select {
     width: 100px;
     padding: 10px;
     font-size: 16px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(221, 221, 221, 0.5);
     border-radius: 0 4px 4px 0;
-    background-color: #f8f9fa;
+    background-color: rgba(248, 249, 250, 0.7);
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
@@ -161,25 +172,38 @@ body {
     pointer-events: none;
 }
 
-/* 动画效果 */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-    from { transform: translateX(-20px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
+/* ==========================================
+   4. 分组块容器样式
+   ========================================== */
 .group {
     animation: fadeIn 0.5s ease;
-    margin-bottom: 15px;
-    background: white;
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 20px;
     position: relative;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.group::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(135deg, rgba(66, 153, 225, 0.08) 0%, rgba(99, 179, 237, 0.03) 100%);
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.group:hover::before {
+    opacity: 1;
 }
 
 .group-title {
@@ -188,7 +212,7 @@ body {
     justify-content: space-between;
     padding-bottom: 8px;
     margin-bottom: 15px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid rgba(226, 232, 240, 0.5);
     position: relative;
 }
 
@@ -199,12 +223,6 @@ body {
     font-size: 1.2rem;
     font-weight: 600;
     color: #2d3748;
-}
-
-.group-privacy-icon {
-    font-size: 14px;
-    color: #718096;
-    margin-left: 4px;
 }
 
 .group-title::after {
@@ -219,70 +237,91 @@ body {
 }
 
 .group-privacy-icon {
-    color: #718096;
     font-size: 16px;
+    color: #718096;
+    margin-left: 4px;
 }
 
-.group-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.group-actions .order-actions {
-    display: flex;
-    gap: 2px;
-}
-
-.group-actions .order-actions button {
-    padding: 4px 8px;
-    font-size: 12px;
-    width: 24px;
-}
-
-.links-grid {
+/* ==========================================
+   5. 链接卡片与网格网格
+   ========================================== */
+.links, .links-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 20px;
+    margin-top: 15px;
 }
 
 .link-card {
     position: relative;
-    display: block;
-    padding: 15px;
-    margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border-radius: 10px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(8px);
-    min-height: 80px;
+    padding: 15px;
+    height: 90px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 15px;
+    text-decoration: none;
     overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation: float 6s ease-in-out infinite;
+}
+
+.link-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.98); 
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+    border-color: rgba(66, 153, 225, 0.4);
 }
 
 .link-info {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
     width: 100%;
     min-width: 0;
 }
 
+.link-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(247, 250, 252, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+}
+
+.link-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.link-text, .link-card-content {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
 .link-title {
     font-size: 16px;
     color: #2d3748;
-    text-decoration: none;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .link-description {
@@ -296,39 +335,46 @@ body {
     line-height: 1.4;
 }
 
-.link-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    border-color: rgba(66, 153, 225, 0.3);
-}
-
-.link-card-content {
-    flex: 1;
-}
-
-.link-icon {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #f7fafc;
+/* ==========================================
+   6. 交互组件与控制项
+   ========================================== */
+/* 链接操作按钮 */
+.link-actions {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    margin-left: 10px;
+    flex-shrink: 0;
+    z-index: 1;
 }
 
-.link-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.link-card:hover .link-actions {
+    opacity: 1;
 }
 
-.link-text {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
+.link-actions button {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.link-actions button:hover {
+    background-color: #3182ce;
+    transform: translateY(-1px);
+    z-index: 3;
 }
 
 /* 链接悬浮提示 */
@@ -354,25 +400,15 @@ body {
     opacity: 1;
 }
 
-/* 链接操作按钮 */
-.link-actions {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
+/* 分组操作区域 */
+.group-actions {
     display: flex;
     gap: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    margin-left: 10px;
-    flex-shrink: 0;
+    margin-left: auto;
+    align-items: center;
 }
 
-.link-card:hover .link-actions {
-    opacity: 1;
-}
-
-.link-actions button {
+.group-actions button, .group-title button {
     padding: 4px 8px;
     font-size: 12px;
     background: #edf2f7;
@@ -383,7 +419,7 @@ body {
     transition: all 0.2s ease;
 }
 
-.link-actions button:hover {
+.group-actions button:hover, .group-title button:hover {
     background: #e2e8f0;
     color: #2d3748;
     transform: translateY(-1px);
@@ -399,7 +435,78 @@ body {
     font-size: 12px;
 }
 
-/* 模态框样式 */
+/* GitHub 链接 */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.github-link {
+    color: #4a5568;
+    font-size: 24px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.github-link:hover {
+    color: #2d3748;
+    transform: translateY(-2px);
+    background: rgba(237, 242, 247, 0.6);
+} 
+
+/* ==========================================
+   7. 后台管理与模态框
+   ========================================== */
+.admin-controls {
+    margin-bottom: 25px;
+    display: flex;
+    gap: 10px;
+}
+
+#adminButton {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.admin-button, .admin-controls button {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-button:hover, .admin-controls button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(66, 153, 225, 0.3);
+}
+
+.admin-button[onclick*="handleLogout"] { background: #e53e3e; }
+.admin-button[onclick*="handleLogout"]:hover { background: #c53030; }
+.admin-button[onclick*="exitEditMode"] { background: #718096; }
+.admin-button[onclick*="exitEditMode"]:hover { background: #4a5568; }
+.admin-button[onclick*="enterEditMode"],
+.admin-button[onclick*="openAdminModal"] { background: #4299e1; }
+.admin-button[onclick*="enterEditMode"]:hover,
+.admin-button[onclick*="openAdminModal"]:hover { background: #3182ce; }
+
+/* 模态框 */
 .modal {
     display: none;
     position: fixed;
@@ -407,23 +514,22 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: 1000;
     animation: modalFadeIn 0.3s ease;
 }
 
 .modal-content {
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     margin: 8% auto;
     padding: 30px;
     width: 90%;
     max-width: 500px;
     border-radius: 12px;
     position: relative;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    transform: translateY(0);
-    transition: transform 0.3s ease;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
 .modal-content h2 {
@@ -431,7 +537,7 @@ body {
     font-size: 1.5rem;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid rgba(226, 232, 240, 0.5);
     position: relative;
 }
 
@@ -466,50 +572,36 @@ body {
 .close:hover {
     background: #3182ce;
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.close:active {
-    transform: scale(0.95);
-    background: #2c5282;
 }
 
 .close::before {
     content: '×';
     font-size: 28px;
-    line-height: 1;
     font-family: Arial, sans-serif;
-    margin-top: -2px;
 }
 
-.close span {
-    display: none;
-}
+.close span { display: none; }
 
-.modal input,
-.modal textarea,
-.modal select {
+.modal input, .modal textarea, .modal select {
     width: 100%;
     padding: 12px;
-    margin-bottom: 10px;
-    border: 2px solid #e2e8f0;
+    margin-bottom: 12px;
+    border: 2px solid rgba(226, 232, 240, 0.6);
     border-radius: 8px;
     font-size: 14px;
     transition: all 0.3s ease;
-    background: #f8fafc;
+    background: rgba(248, 250, 252, 0.8);
 }
 
-.modal input:focus,
-.modal textarea:focus,
-.modal select:focus {
+.modal input:focus, .modal textarea:focus, .modal select:focus {
     outline: none;
     border-color: #63b3ed;
     background: white;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
 }
 
 .modal textarea {
-    min-height: 120px;
+    min-height: 110px;
     resize: vertical;
 }
 
@@ -546,15 +638,23 @@ body {
     box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
 }
 
+/* ==========================================
+   8. 动画与加载效果
+   ========================================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
+}
+
 @keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .loading {
@@ -583,512 +683,13 @@ body {
     opacity: 0;
 }
 
-.loading-wave div:nth-child(2) {
-    animation-delay: -0.5s;
-}
+.loading-wave div:nth-child(2) { animation-delay: -0.5s; }
 
 @keyframes loading-wave {
-    0% {
-        top: 36px;
-        left: 36px;
-        width: 0;
-        height: 0;
-        opacity: 1;
-    }
-    100% {
-        top: 0;
-        left: 0;
-        width: 72px;
-        height: 72px;
-        opacity: 0;
-    }
+    0% { top: 36px; left: 36px; width: 0; height: 0; opacity: 1; }
+    100% { top: 0; left: 0; width: 72px; height: 72px; opacity: 0; }
 }
 
-/* 管理员控制按钮 */
-.admin-controls {
-    margin-bottom: 25px;
-    display: flex;
-    gap: 10px;
-}
-
-.admin-controls button {
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.admin-controls button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
-}
-
-.admin-controls button i {
-    font-size: 14px;
-}
-
-.group-title button {
-    padding: 4px 8px;
-    font-size: 12px;
-    background-color: #4299e1;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.group-title button:hover {
-    background-color: #3182ce;
-    transform: translateY(-1px);
-}
-
-/* 表单样式 */
-.modal textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    min-height: 100px;
-}
-
-.modal select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.modal label {
-    display: block;
-    margin-bottom: 10px;
-}
-
-.link-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-left: 10px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.link-card:hover .link-actions {
-    opacity: 1;
-}
-
-.link-actions button {
-    padding: 4px 8px;
-    font-size: 12px;
-    background-color: #4299e1;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.link-actions button:hover {
-    background-color: #3182ce;
-    transform: translateY(-1px);
-}
-
-.order-actions {
-    display: flex;
-    gap: 2px;
-}
-
-.order-actions button {
-    padding: 2px 6px;
-    font-size: 12px;
-}
-
-.admin-button i {
-    font-size: 14px;
-}
-
-/* 新增动画效果 */
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0px); }
-}
-
-.link-card {
-    animation: float 6s ease-in-out infinite;
-}
-
-.group {
-    position: relative;
-    margin-bottom: 30px;
-}
-
-.group::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    background: linear-gradient(135deg, rgba(66, 153, 225, 0.1) 0%, rgba(99, 179, 237, 0.05) 100%);
-    border-radius: 12px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.group:hover::before {
-    opacity: 1;
-}
-
-/* 响应式优化 */
-@media (max-width: 768px) {
-    .container {
-        grid-template-columns: 1fr;
-    }
-
-    .nav-sidebar {
-        display: none;
-    }
-
-    .header {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .search-bar {
-        width: 100%;
-    }
-
-    .link-card {
-        flex-direction: column;
-    }
-
-    .link-actions {
-        margin-top: 10px;
-        margin-left: 0;
-        flex-direction: row;
-        opacity: 1;
-    }
-}
-
-/* 分组操作按钮样式 */
-.group-actions {
-    display: flex;
-    gap: 8px;
-    margin-left: auto;
-}
-
-.group-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.group-actions button {
-    padding: 4px 8px;
-    font-size: 12px;
-    background: #edf2f7;
-    color: #4a5568;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.group-actions button:hover {
-    background: #e2e8f0;
-    color: #2d3748;
-    transform: translateY(-1px);
-}
-
-.order-actions {
-    display: flex;
-    gap: 4px;
-}
-
-/* 链接卡片样式优化 */
-.link-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 15px;
-    margin-bottom: 10px;
-    background: white;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
-
-.link-info {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    width: 100%;
-    min-width: 0;
-}
-
-.link-title {
-    font-size: 16px;
-    color: #2d3748;
-    text-decoration: none;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.link-description {
-    font-size: 13px;
-    color: #718096;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-    line-height: 1.4;
-}
-
-.link-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    border-color: rgba(66, 153, 225, 0.3);
-}
-
-.link-card-content {
-    flex: 1;
-}
-
-.link-icon {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #f7fafc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.link-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.link-text {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-}
-
-/* 链接悬浮提示 */
-.link-url-tooltip {
-    position: absolute;
-    bottom: -30px;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 6px 12px;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    opacity: 0;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.link-card:hover .link-url-tooltip {
-    bottom: 0;
-    opacity: 1;
-}
-
-/* 链接操作按钮 */
-.link-actions {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    margin-left: 10px;
-    flex-shrink: 0;
-}
-
-.link-card:hover .link-actions {
-    opacity: 1;
-}
-
-.link-actions button {
-    padding: 4px 8px;
-    font-size: 12px;
-    background: #edf2f7;
-    color: #4a5568;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.link-actions button:hover {
-    background: #e2e8f0;
-    color: #2d3748;
-    transform: translateY(-1px);
-}
-
-.order-actions {
-    display: flex;
-    gap: 4px;
-}
-
-.order-actions button {
-    padding: 2px 6px;
-    font-size: 12px;
-}
-
-.admin-button i {
-    font-size: 14px;
-}
-
-/* 新增动画效果 */
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0px); }
-}
-
-.link-card {
-    animation: float 6s ease-in-out infinite;
-}
-
-.group {
-    position: relative;
-    margin-bottom: 30px;
-}
-
-.group::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    background: linear-gradient(135deg, rgba(66, 153, 225, 0.1) 0%, rgba(99, 179, 237, 0.05) 100%);
-    border-radius: 12px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.group:hover::before {
-    opacity: 1;
-}
-
-/* 响应式优化 */
-@media (max-width: 768px) {
-    .container {
-        grid-template-columns: 1fr;
-    }
-
-    .nav-sidebar {
-        display: none;
-    }
-
-    .header {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .search-bar {
-        width: 100%;
-    }
-
-    .link-card {
-        flex-direction: column;
-    }
-
-    .link-actions {
-        margin-top: 10px;
-        margin-left: 0;
-        flex-direction: row;
-        opacity: 1;
-    }
-}
-
-/* 分组操作按钮样式 */
-.group-actions {
-    display: flex;
-    gap: 8px;
-    margin-left: auto;
-}
-
-.group-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.group-actions button {
-    padding: 4px 8px;
-    font-size: 12px;
-    background: #edf2f7;
-    color: #4a5568;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.group-actions button:hover {
-    background: #e2e8f0;
-    color: #2d3748;
-    transform: translateY(-1px);
-}
-
-.order-actions {
-    display: flex;
-    gap: 4px;
-}
-
-/* 链接网格布局 */
-.links {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
-
-/* 导航加载动画 */
 .nav-loading {
     display: flex;
     justify-content: center;
@@ -1105,179 +706,48 @@ body {
     animation: navLoadingBounce 0.5s ease-in-out infinite;
 }
 
-.nav-loading-dot:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.nav-loading-dot:nth-child(3) {
-    animation-delay: 0.2s;
-}
+.nav-loading-dot:nth-child(2) { animation-delay: 0.1s; }
+.nav-loading-dot:nth-child(3) { animation-delay: 0.2s; }
 
 @keyframes navLoadingBounce {
-    0%, 100% {
-        transform: translateY(0);
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); background: #63b3ed; }
+}
+
+/* ==========================================
+   9. 响应式布局优化
+   ========================================== */
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
     }
-    50% {
-        transform: translateY(-6px);
-        background: #63b3ed;
+
+    .nav-sidebar {
+        display: none;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .link-card {
+        flex-direction: column;
+        height: auto;
+        min-height: 120px;
+        padding: 12px;
+    }
+
+    .link-actions {
+        margin-top: 10px;
+        margin-left: 0;
+        flex-direction: row;
+        position: static;
+        transform: none;
+        opacity: 1;
     }
 }
-
-/* GitHub 链接样式 */
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.github-link {
-    color: #4a5568;
-    font-size: 24px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-}
-
-.github-link:hover {
-    color: #2d3748;
-    transform: translateY(-2px);
-    background: #edf2f7;
-} 
-
-.link-card {
-    position: relative;
-    display: block;
-    padding: 15px;
-    margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(8px);
-    height: 90px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.link-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-width: 0;
-}
-
-.link-title {
-    font-size: 16px;
-    color: #2d3748;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.link-icon {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #f7fafc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    align-self: center;
-}
-
-.link-actions {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    margin-left: 10px;
-    flex-shrink: 0;
-    z-index: 1;
-}
-
-.link-actions button {
-    position: relative;
-    z-index: 2;
-}
-
-.link-actions button:hover {
-    z-index: 3;
-} 
-
-/* 管理员按钮 */
-#adminButton {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.admin-button {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-    border-radius: 6px;
-    padding: 8px 16px;
-    color: white;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* 不同按钮的颜色 */
-.admin-button[onclick*="handleLogout"] {
-    background: #e53e3e;
-}
-
-.admin-button[onclick*="handleLogout"]:hover {
-    background: #c53030;
-}
-
-.admin-button[onclick*="exitEditMode"] {
-    background: #718096;
-}
-
-.admin-button[onclick*="exitEditMode"]:hover {
-    background: #4a5568;
-}
-
-.admin-button[onclick*="enterEditMode"],
-.admin-button[onclick*="openAdminModal"] {
-    background: #4299e1;
-}
-
-.admin-button[onclick*="enterEditMode"]:hover,
-.admin-button[onclick*="openAdminModal"]:hover {
-    background: #3182ce;
-}
-
-.admin-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(66, 153, 225, 0.3);
-}
-
-.admin-button i {
-    font-size: 14px;
-} 
