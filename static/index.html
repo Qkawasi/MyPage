@@ -10,10 +10,8 @@
     <link rel="stylesheet" href="toast.css">
 </head>
 <body>
-    <!-- Toast 容器 -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <!-- 确认对话框 -->
     <div id="confirmDialog" class="confirm-dialog">
         <div class="confirm-content">
             <div class="confirm-title"></div>
@@ -26,37 +24,28 @@
     </div>
 
     <div class="container">
-        <!-- 目录导航 -->
         <div class="nav-sidebar">
             <div class="nav-title">目录导航</div>
             <div id="groupNav" class="nav-list"></div>
         </div>
 
-        <!-- 主要内容区 -->
         <div class="main-content">
             <div class="page-header">
-                <!-- 搜索栏和管理员按钮 -->
                 <div class="header">
                     <form class="search-form" onsubmit="handleSearch(event)">
                         <div class="search-bar">
                             <div class="search-icon">
                                 <i class="fas fa-search"></i>
                             </div>
-                            <input type="text" id="searchInput" placeholder="搜索...">
+                            <input type="search" id="searchInput" placeholder="搜索..." autocomplete="off">
                             <select id="searchEngine">
-                                <option value="baidu"><i class="fab fa-baidu"></i> 百度</option>
-                                <option value="google"><i class="fab fa-google"></i> Google</option>
-                                <option value="bing"><i class="fab fa-microsoft"></i> Bing</option>
+                                <option value="baidu">百度</option>
+                                <option value="google">Google</option>
+                                <option value="bing">Bing</option>
                             </select>
                         </div>
                     </form>
                     <div class="header-actions">
-                        <a href="https://github.com/yvyan/MyPage" 
-                           target="_blank" 
-                           class="github-link" 
-                           title="查看源码">
-                            <i class="fab fa-github"></i>
-                        </a>
                         <div id="adminButton">
                             <button class="admin-button" onclick="openAdminModal()">
                                 <i class="fas fa-user-lock"></i>
@@ -67,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- 导航内容 -->
             <div id="navigation" class="navigation">
                 <div class="loading">
                     <div class="loading-wave">
@@ -80,10 +68,9 @@
         </div>
     </div>
 
-    <!-- 管理员登录模态框 -->
     <div id="adminModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeAdminModal()"></span>
+            <span class="close" onclick="closeAdminModal()">&times;</span>
             <h2>管理员登录</h2>
             <form id="adminForm" onsubmit="handleLogin(event)">
                 <input type="password" id="adminPassword" placeholder="请输入管理员密码" required>
@@ -92,10 +79,9 @@
         </div>
     </div>
 
-    <!-- 管理链接模态框 -->
     <div id="linkModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeLinkModal()"></span>
+            <span class="close" onclick="closeLinkModal()">&times;</span>
             <h2>管理链接</h2>
             <form id="linkForm" onsubmit="handleLinkSubmit(event)">
                 <input type="url" id="linkUrl" placeholder="链接地址" required>
@@ -110,10 +96,9 @@
         </div>
     </div>
 
-    <!-- 管理分组模态框 -->
     <div id="groupModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeGroupModal()"></span>
+            <span class="close" onclick="closeGroupModal()">&times;</span>
             <h2>管理分组</h2>
             <form id="groupForm" onsubmit="handleGroupSubmit(event)">
                 <input type="text" id="groupName" placeholder="分组名称" required>
@@ -126,7 +111,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
-    <script src="app.js"></script>
+    <script src="api.js" defer></script>
+    <script src="app.js" defer></script>
 </body>
-</html> 
+</html>
