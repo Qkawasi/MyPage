@@ -162,7 +162,7 @@ async function handleLogin(event) {
     }
 }
 
-// 链接管理相关 - 彻底重构生命周期
+// 链接管理相关
 function openLinkModal(linkId = null) {
     if (!isEditMode) {
         showToast('请先登录管理员账号');
@@ -172,7 +172,7 @@ function openLinkModal(linkId = null) {
     const modal = document.getElementById('linkModal');
     const form = document.getElementById('linkForm');
     
-    // 【双重保险 1】打开时绝对清空所有旧状态
+    // 打开时绝对清空所有旧状态
     form.reset();
     form.removeAttribute('data-link-id');
     form.removeAttribute('data-order-num');
@@ -199,7 +199,7 @@ function closeLinkModal() {
     
     modal.style.display = 'none';
     
-    // 【双重保险 2】关闭窗口时立即抹除所有状态，绝不留到下一次
+    // 关闭窗口时立即抹除所有状态
     form.reset();
     form.removeAttribute('data-link-id');
     form.removeAttribute('data-order-num');
@@ -210,7 +210,6 @@ function closeLinkModal() {
 async function handleLinkSubmit(event) {
     event.preventDefault();
     const form = event.target;
-    // 严格获取当前 ID 状态
     const linkId = form.dataset.linkId || form.getAttribute('data-link-id');
     const groupId = parseInt(document.getElementById('linkGroup').value);
     
@@ -220,21 +219,18 @@ async function handleLinkSubmit(event) {
     }
 
     let orderNum;
+    const links = await fetchLinks();
     
     if (linkId) {
-        // 编辑现有链接
-        const links = await fetchLinks();
+        // 【核心修复】编辑现有链接
         const currentLink = links.find(l => l.id === parseInt(linkId));
         
         if (currentLink && currentLink.group_id !== groupId) {
-            // 分组发生改变，处理位移序号
+            // 如果发生了跨分组移动：
             try {
-                const oldGroupLinks = links
-                    .filter(l => l.group_id === currentLink.group_id)
-                    .sort((a, b) => a.order_num - b.order_num);
-                
-                for (let i = 0; i < oldGroupLinks.length; i++) {
-                    const link = oldGroupLinks[i];
+                // 1. 让原分组内序号大于当前移动链接的其他链接序号自动往前移，填补空缺
+                const oldGroupLinks = links.filter(l => l.group_id === currentLink.group_id);
+                for (const link of oldGroupLinks) {
                     if (link.order_num > currentLink.order_num) {
                         await updateLink(link.id, {
                             ...link,
@@ -243,28 +239,24 @@ async function handleLinkSubmit(event) {
                     }
                 }
                 
-                const groupLinks = links.filter(l => l.group_id === groupId);
-                orderNum = groupLinks.length + 1;
+                // 2. 重新获取新目标分组内的最大序号，确保新序号绝对唯一，挂在最末尾，绝对不覆盖他人
+                const targetGroupLinks = links.filter(l => l.group_id === groupId);
+                const maxOrderNum = targetGroupLinks.reduce((max, link) => Math.max(max, link.order_num || 0), 0);
+                orderNum = maxOrderNum + 1;
+                
             } catch (error) {
-                showToast('更新序号失败: ' + error.message, 'error');
+                showToast('跨组转移序号计算失败: ' + error.message, 'error');
                 return;
             }
         } else {
-            // 分组没变，保持原序号
-            orderNum = parseInt(form.dataset.orderNum) || (currentLink ? currentLink.order_num : 0);
+            // 同分组内编辑，严格保持原序号不发生变动
+            orderNum = parseInt(form.dataset.orderNum) || (currentLink ? currentLink.order_num : 1);
         }
     } else {
-        // 纯粹的【添加新链接】逻辑
-        try {
-            const links = await fetchLinks();
-            const groupLinks = links.filter(l => l.group_id === groupId);
-            const maxOrderNum = groupLinks.reduce((max, link) => 
-                Math.max(max, link.order_num || 0), 0);
-            orderNum = maxOrderNum + 1;
-        } catch (error) {
-            console.error('获取链接序号失败:', error);
-            orderNum = 1; 
-        }
+        // 添加全新链接：获取目标分组当前最大序号 + 1
+        const targetGroupLinks = links.filter(l => l.group_id === groupId);
+        const maxOrderNum = targetGroupLinks.reduce((max, link) => Math.max(max, link.order_num || 0), 0);
+        orderNum = maxOrderNum + 1;
     }
     
     const formData = {
@@ -285,7 +277,6 @@ async function handleLinkSubmit(event) {
             showToast('添加成功');
         }
         
-        // 【双重保险 3】提交完毕彻底断绝联系
         closeLinkModal();
         await loadNavigation();
     } catch (error) {
@@ -445,12 +436,10 @@ async function loadNavigation() {
             return;
         }
         
-        // 对分组按照 order_num 进行升序排序
         groups.sort((a, b) => (a.order_num || 0) - (b.order_num || 0));
         
         for (const group of groups) {
             if (!group.is_private || isAdmin) {
-                // 对组内链接也按照 order_num 进行升序排序
                 const groupLinks = links
                     .filter(link => link.group_id === group.id)
                     .sort((a, b) => (a.order_num || 0) - (b.order_num || 0));
